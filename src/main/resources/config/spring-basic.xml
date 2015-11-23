@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<!-- 导入其他配置文件 -->    
+	<import resource="data-source.xml"/>
+	
+	<context:property-placeholder location="classpath:config/jdbc.properties" />
+	
+    <!-- 启用spring注解支持 -->
+    <context:annotation-config/><!--does NOT search for @Component, @Controller, etc-->
+    <!--可以替换 <context:annotation-config/>-->
+    <!--使用PersistenceAnnotationBeanPostProcessor和equiredAnnotationBeanPostProcessor两个Processor的功能（例如JPA等）-->
+    
+    <!-- 扫描simplespring中的类包，将标注Spring注解的类自动转化Bean，同时完成Bean的注入 -->
+    <context:component-scan base-package="com.tgb.ccl.simplespring.daosupport" />
+    <context:component-scan base-package="com.tgb.ccl.simplespring.servicesupport.impl" />
+    
+    <!-- 扫描项目中的类包 -->
+    <context:component-scan base-package="com.tgb.ccl.simplespring.demo.service.impl" />
+</beans>
