@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,15 +61,12 @@ public class Txt2JavaTool {
 
         List<Field> fs = new ArrayList<Field>();
         for (Field f : fields) {
-            if (f.getAnnotation(TxtElement.class) != null) {
+        	TxtElement annotation = f.getAnnotation(TxtElement.class);
+            if (annotation != null && annotation.required()) {
                 fs.add(f);
             }
         }
-        Field[] fis = new Field[fs.size()];
-        for (int i = 0; i < fs.size(); i++) {
-            fis[i] = fs.get(i);
-        }
-        return fis;
+        return fs.toArray(new Field[]{});
     }
 
     /**
@@ -90,37 +86,18 @@ public class Txt2JavaTool {
         Field[] fields = getTxtFields(getAllFields(clazz));
         // 2、按照注解index排序 TXT 列
         Arrays.sort(fields, new TxtElementComparator());
-        // 3、按顺序输出
-        int indexI = 0;
+        //使用split链接起来
         for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            // 获取该字段的注解对象
-            TxtElement anno = field.getAnnotation(TxtElement.class);
-            // 获取该字段的值
-            Object objValue = null;
-            String methodName = "get"
-                    + field.getName().substring(0, 1).toUpperCase()
-                    + field.getName().substring(1);
-            try {
-                Method getMethod = clazz.getMethod(methodName);
-                objValue = getMethod.invoke(obj);
-            } catch (Exception e) {
-                throw new IOException("java对象 转 TXT对象失败："+e.getMessage(), e);
-            }
-            // 判断是否必输
-            boolean required = anno.required();
-            if(required && objValue==null) {
-                throw new IOException("java对象 转 TXT对象失败：字段【"+field.getName()+"】不能为空！");
-            }
-            // 输出该字段
-            if(objValue != null) {
-                if(indexI != 0) {
-                    out.append(split);
-                }
-                out.append(objValue.toString());
-                indexI ++;
-            }
-        }
+            fields[i].setAccessible(true);
+  			try {
+  				out.append(String.valueOf(fields[i].get(obj)));
+  			} catch (IllegalArgumentException | IllegalAccessException e) {
+  				throw new IOException("java对象 转 TXT对象失败："+e.getMessage(), e);
+  			}
+  			if(i+1<fields.length){//不是最后一个，则添加分隔符
+  				out.append(split);//添加分隔符
+  			}
+  		}
     }
 
     /**
