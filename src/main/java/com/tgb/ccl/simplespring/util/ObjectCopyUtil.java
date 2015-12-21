@@ -4,7 +4,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -151,16 +155,16 @@ public class ObjectCopyUtil {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public static <T, K> T copy(K objSource,Class<K> clazzSrc,Class<T> clazzDes ) throws InstantiationException, IllegalAccessException{
+	@SuppressWarnings("unchecked")
+	public static <T, K> T copy(Object objSource,Class<K> clazzSrc,Class<T> clazzDes ) throws InstantiationException, IllegalAccessException{
 		
 		if(null == objSource) return null;//如果源对象为空，则直接返回null
 		
 		T objDes = clazzDes.newInstance();
 		
-		return merge(objSource, objDes, clazzSrc, clazzDes);
+		return merge((K)objSource, objDes, clazzSrc, clazzDes);
 		
 	}
-	
 	
 	/**
 	 * 合并对象方法（适合不同类型的转换）<br/>
@@ -207,6 +211,7 @@ public class ObjectCopyUtil {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T, K> T merge(K objSource,T objDes,Class<K> clazzSrc,Class<T> clazzDes,boolean overwrite,Set<String> IgnoreSet) throws InstantiationException, IllegalAccessException{
 		
 		if(null == objSource) return null;//如果源对象为空，则直接返回null
@@ -240,17 +245,39 @@ public class ObjectCopyUtil {
 			field.setAccessible( true );  
 			
 			try  
-			{  
+			{ 
+				Object value = field.get(objSource);
 				String fieldName = field.getName();// 属性名
-				//如果目标对象当前属性不为空
-				if(null!=m.get(fieldName).get(objDes)){
-					if(overwrite){//如果覆盖当前属性值，但map中存在，则不覆盖，否则覆盖
-						if(null!=IgnoreSet && IgnoreSet.contains(fieldName.toUpperCase())){//如果map中有值
-							continue;
-						}
-					}else{//如果不覆盖，但是map存在，则必须覆盖，否则不覆盖
-						if(null==IgnoreSet || !IgnoreSet.contains(fieldName.toUpperCase())){//如果map中没有值
-							continue;
+				
+				if(java.util.Collection.class.isAssignableFrom(field.getType()) && ((Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0])!=Object.class){
+					//如果该字段是Collection，且指定了泛型类型，则将其子类全部进行转换
+					Collection c; 
+					if(java.util.List.class.isAssignableFrom(field.getType())){
+						c = new ArrayList();
+					}else if(java.util.Set.class.isAssignableFrom(field.getType())){
+						c = new HashSet();
+					}else{
+						 c = (Collection) field.getType().newInstance();
+					}
+					Class<?> clsSrc = (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
+					Class<?> clsDesc = (Class<?>) ((ParameterizedType)m.get(fieldName).getGenericType()).getActualTypeArguments()[0]; 
+					for (Object ele : (Collection)value) {
+						c.add(copy(ele, clsSrc, clsDesc));
+					}
+					value = c;
+//				}else if(java.util.Map.class.isAssignableFrom(field.getType()) && field.getGenericType()!=Object.class){
+					//如果该字段是Map，且指定了泛型类型，则将其子类全部进行转换
+				}else{
+					//如果目标对象当前属性不为空
+					if(null!=m.get(fieldName).get(objDes)){
+						if(overwrite){//如果覆盖当前属性值，但map中存在，则不覆盖，否则覆盖
+							if(null!=IgnoreSet && IgnoreSet.contains(fieldName.toUpperCase())){//如果map中有值
+								continue;
+							}
+						}else{//如果不覆盖，但是map存在，则必须覆盖，否则不覆盖
+							if(null==IgnoreSet || !IgnoreSet.contains(fieldName.toUpperCase())){//如果map中没有值
+								continue;
+							}
 						}
 					}
 				}
@@ -262,7 +289,7 @@ public class ObjectCopyUtil {
 				Method setMethod = clazzDes.getMethod(setMethodName,new Class[]{field.getType()});
 
 				// 对目标对象调用set方法装入属性值
-				setMethod.invoke(objDes, field.get(objSource));
+				setMethod.invoke(objDes, value);
 			}  
 			catch ( Exception e )  
 			{

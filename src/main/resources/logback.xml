@@ -23,27 +23,27 @@
 <!--JdbcTemplate的日志输出器 -->
     <logger name="org.springframework.jdbc.core.StatementCreatorUtils"
         additivity="true" level="TRACE">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>
     <logger name="org.springframework.jdbc.core" additivity="true">
         <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>
     <logger name="java.sql.Connection" additivity="true">
         <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>
     <logger name="java.sql.Statement" additivity="true">
         <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>
     <logger name="java.sql.PreparedStatement" additivity="true">
         <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>
     <logger name="java.sql.ResultSet" additivity="true">
         <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stdout" />
     </logger>	
     
     
