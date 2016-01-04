@@ -167,6 +167,29 @@ public class ObjectCopyUtil {
 	}
 	
 	/**
+	 * 拷贝对象方法（适合不同类型的转换）<br/>
+	 * 前提是，源类中的所有属性在目标类中都存在
+	 * 
+	 * @param objSource 					源对象
+	 * @param clazzSrc 						源对象所属class
+	 * @param clazzDes 					目标class
+	 * @param overrideDefaultValue 	是否重写默认值
+	 * @return
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T, K> T copy(Object objSource,Class<K> clazzSrc,Class<T> clazzDes ,boolean overrideDefaultValue) throws InstantiationException, IllegalAccessException{
+		
+		if(null == objSource) return null;//如果源对象为空，则直接返回null
+		
+		T objDes = clazzDes.newInstance();
+		
+		return merge((K)objSource, objDes, clazzSrc, clazzDes, overrideDefaultValue);
+		
+	}
+	
+	/**
 	 * 合并对象方法（适合不同类型的转换）<br/>
 	 * 前提是，源类中的所有属性在目标类中都存在
 	 * 
