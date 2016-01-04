@@ -285,7 +285,7 @@ public class ObjectCopyUtil {
 					Class<?> clsSrc = (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 					Class<?> clsDesc = (Class<?>) ((ParameterizedType)m.get(fieldName).getGenericType()).getActualTypeArguments()[0]; 
 					for (Object ele : (Collection)value) {
-						c.add(copy(ele, clsSrc, clsDesc));
+						c.add(copy(ele, clsSrc, clsDesc, overwrite));
 					}
 					value = c;
 //				}else if(java.util.Map.class.isAssignableFrom(field.getType()) && field.getGenericType()!=Object.class){
