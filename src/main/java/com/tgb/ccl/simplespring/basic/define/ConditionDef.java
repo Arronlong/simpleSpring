@@ -146,14 +146,17 @@ public class ConditionDef {
     		
     		if(value instanceof ConditionsMap){
     			ConditionsMap cmap = (ConditionsMap) value;
-    			for (Entry<String,Object> e :map.entrySet()) {
-    				if(value.equals(ConditionEnum.BETWEEN.getCode())){//自动添加2个参数
-            			keys[i][0]= key+ e.getKey() + key+"__1 and " + key +"__2";
-    				} else if(value.equals(ConditionEnum.NOTNULL.getCode()) ||
-    							value.equals(ConditionEnum.NOTNULL.getCode()) ){//自动添加2个参数
+    			for (Entry<String,Object> e :cmap.entrySet()) {
+    				if(e.getKey().equals(ConditionEnum.BETWEEN.getCode())){//自动添加2个参数
+            			keys[i][0]= key+ e.getKey() + ":" + key+"__1 and :" + key +"__2";
+    				} else if(e.getKey().equals(ConditionEnum.NOTNULL.getCode()) ||
+    						e.getKey().equals(ConditionEnum.NULL.getCode()) ){//自动添加2个参数
     					keys[i][0]= key+ e.getKey() ;
+    				} else if(e.getKey().equals(ConditionEnum.IN.getCode())){
+    					keys[i][0]= key+ e.getKey() + "(:" + key +")";
             		}else{
             			keys[i][0]= key+ e.getKey() +":" + key;
+            			map.put(key, e.getValue());
             		}
     			}
     		}else{

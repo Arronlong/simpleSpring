@@ -409,13 +409,13 @@ public class SQLUtils {
 								temp.append(column.columnDefinition());
 							}
 						}
-//						if(temp.toString().toLowerCase().indexOf(" default ")==-1){
+						if(temp.toString().toLowerCase().indexOf(" default ")==-1){
 							if(!fieldInfo.isNull()){
 								temp.append(" not null ");
 							}else{
 								temp.append(" null ");
 							}
-//						}
+						}
 						
 						if(!fieldInfo.getComment().equals("")){
 							temp.append(" comment '").append(fieldInfo.getComment()).append("'");
