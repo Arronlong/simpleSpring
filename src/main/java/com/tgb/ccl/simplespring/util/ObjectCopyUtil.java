@@ -308,11 +308,16 @@ public class ObjectCopyUtil {
 				String firstLetter = fieldName.substring(0, 1).toUpperCase();// 获取属性首字母
 				// 拼接set方法名
 				String setMethodName = "set" + firstLetter + fieldName.substring(1);
+				Class<?> clazz = (new Class[]{m.get(fieldName).getType()})[0];
 				// 获取set方法对象
-				Method setMethod = clazzDes.getMethod(setMethodName,new Class[]{field.getType()});
-
-				// 对目标对象调用set方法装入属性值
-				setMethod.invoke(objDes, value);
+				Method setMethod = clazzDes.getMethod(setMethodName, clazz);
+				try {
+					// 对目标对象调用set方法装入属性值
+					setMethod.invoke(objDes, value);
+				} catch (Exception e) {
+					// 对目标对象调用set方法装入属性值
+					setMethod.invoke(objDes, ConvertUtil.convertGt((String)value, clazz));
+				}
 			}  
 			catch ( Exception e )  
 			{
