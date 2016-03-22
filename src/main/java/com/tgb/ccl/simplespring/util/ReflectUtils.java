@@ -162,6 +162,8 @@ public class ReflectUtils {
 					if(field.isAnnotationPresent(Column.class)){
 						if(field.getAnnotation(Column.class).value()!=null && !field.getAnnotation(Column.class).value().equals("")){
 							value = param.get(field.getAnnotation(Column.class).value());
+						}else{
+							value = param.get(fieldName);
 						}
 					}else{
 						value = param.get(fieldName);
